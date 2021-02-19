@@ -2,7 +2,7 @@ package com.udacity
 
 import android.animation.ValueAnimator
 import android.content.Context
-import android.graphics.Canvas
+import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 import kotlin.properties.Delegates
@@ -15,7 +15,15 @@ class LoadingButton @JvmOverloads constructor(
 
     private val valueAnimator = ValueAnimator()
 
-    private var buttonState: ButtonState by Delegates.observable<ButtonState>(ButtonState.Completed) { p, old, new ->
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+        textAlign = Paint.Align.CENTER
+        textSize = context.resources.getDimension(R.dimen.default_text_size)
+        typeface = Typeface.create("", Typeface.BOLD)
+        color = Color.WHITE
+    }
+
+    private var buttonState: ButtonState by Delegates.observable(ButtonState.Completed) { p, old, new ->
 
     }
 
@@ -25,9 +33,18 @@ class LoadingButton @JvmOverloads constructor(
     }
 
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
+        val xPos: Float = (width / 2).toFloat()
+        val yPos: Float = (height / 2 - (paint.descent() + paint.ascent()) / 2)
+        canvas.drawColor(context.getColor(R.color.colorPrimary))
+        canvas.drawText(
+            context.getString(R.string.button_name),
+            xPos,
+            yPos,
+            paint
+        )
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
