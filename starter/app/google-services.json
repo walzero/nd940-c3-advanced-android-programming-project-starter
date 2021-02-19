@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "304566556286",
+    "project_id": "udacity-c3-downloader",
+    "storage_bucket": "udacity-c3-downloader.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:304566556286:android:a2c1f3cc468618f10a2a2f",
+        "android_client_info": {
+          "package_name": "com.udacity"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "304566556286-jhvjioekvnv33ml7j3harle6o3edjrq9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBoA7VEN3iQSPLC-WzGARBLtVKZIQjPAgA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "304566556286-jhvjioekvnv33ml7j3harle6o3edjrq9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
