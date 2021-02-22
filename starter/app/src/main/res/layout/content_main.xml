@@ -11,15 +11,54 @@
         tools:context=".MainActivity"
         tools:showIn="@layout/activity_main">
 
+        <TextView
+            android:id="@+id/tv_download_options_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            style="@style/AppTheme.Text"
+            android:text="@string/download_options_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <RadioGroup
+            android:id="@+id/rg_download_options"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/default_margin"
+            android:layout_marginEnd="@dimen/default_margin"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_download_options_title">
+
+            <RadioButton
+                android:id="@+id/rb_option_glide"
+                style="@style/AppTheme.RadioButton"
+                android:tag=""
+                android:text="@string/download_option_glide" />
+
+            <RadioButton
+                android:id="@+id/rb_option_udacity"
+                style="@style/AppTheme.RadioButton"
+                android:text="@string/download_option_udacity" />
+
+            <RadioButton
+                android:id="@+id/rb_option_retrofit"
+                style="@style/AppTheme.RadioButton"
+                android:text="@string/download_option_retrofit" />
+        </RadioGroup>
+
         <com.udacity.LoadingButton
             android:id="@+id/custom_button"
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_margin="20dp"
+            app:flow_verticalBias="1.0"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
