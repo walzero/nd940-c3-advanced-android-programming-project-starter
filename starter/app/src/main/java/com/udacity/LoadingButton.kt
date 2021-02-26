@@ -3,9 +3,11 @@ package com.udacity
 import android.animation.PropertyValuesHolder
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
+import android.view.animation.DecelerateInterpolator
 import androidx.core.animation.doOnEnd
 import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
@@ -18,17 +20,20 @@ class LoadingButton @JvmOverloads constructor(
         private const val PROGRESS = "progress"
     }
 
-    private var progress: Float = 0f
     private lateinit var currentRect: Rect
+    private lateinit var arcBounds: RectF
+
+    private var progress: Float = 1f
+    private var widthSize = 0
+    private var heightSize = 0
 
     private val widthProperty by lazy {
         PropertyValuesHolder.ofFloat(PROGRESS, 0f, 1f)
     }
 
-    private var widthSize = 0
-    private var heightSize = 0
-
-    private val valueAnimator = ValueAnimator()
+    private val valueAnimator by lazy {
+        ValueAnimator().apply { interpolator = DecelerateInterpolator(1f) }
+    }
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
@@ -56,6 +61,7 @@ class LoadingButton @JvmOverloads constructor(
 
         val xPos: Float = (width / 2).toFloat()
         val yPos: Float = (height / 2 - (paint.descent() + paint.ascent()) / 2)
+
         //Draw the Background
         canvas.drawColor(Color.DKGRAY)
 
@@ -73,8 +79,11 @@ class LoadingButton @JvmOverloads constructor(
         )
 
         //Draw the Arc
-        canvas.drawArc()
+        paint.color = Color.WHITE
+        canvas.drawArc(arcBounds, 0f, calculateArcSweepValue(), true, paint)
     }
+
+    private fun calculateArcSweepValue() = if (progress == 1f) 0f else (360f * progress)
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val minw: Int = paddingLeft + paddingRight + suggestedMinimumWidth
@@ -87,7 +96,7 @@ class LoadingButton @JvmOverloads constructor(
         widthSize = w
         heightSize = h
         setMeasuredDimension(w, h)
-        updateRect()
+        updateRects()
     }
 
 
@@ -95,24 +104,38 @@ class LoadingButton @JvmOverloads constructor(
         valueAnimator.apply {
             removeAllUpdateListeners()
             setValues(widthProperty)
-            duration = TimeUnit.SECONDS.toMillis(2)
+            duration = TimeUnit.SECONDS.toMillis(1)
             addUpdateListener {
                 progress = it.getAnimatedValue(PROGRESS) as Float
-                updateRect()
-                updateArc()
+                updateRects()
                 invalidate()
             }
-            doOnEnd { isEnabled = true }
+            doOnEnd {
+                isEnabled = true
+            }
         }.start().also { isEnabled = false }
     }
 
-    private fun updateRect() {
+    private fun updateRects() {
         currentRect = Rect(
             0, 0, (widthSize * progress).toInt(), heightSize
         )
+
+        //bounds summary:
+        //width = width - margin - size, width - margin
+        //height = half height - half size, half height + half size
+
+
+        arcBounds = RectF(
+            widthSize - 48.inPixels,
+            ((heightSize * getArcHeightFactor()) / 2) - 16.inPixels,
+            widthSize - 16.inPixels,
+            ((heightSize * getArcHeightFactor()) / 2) + 16.inPixels
+        )
     }
 
-    private fun updateArc() {
+    private fun getArcHeightFactor() = if (progress > 0.3f) progress else 0f
 
-    }
+    private val Int.inPixels: Float
+        get() = this * Resources.getSystem().displayMetrics.density
 }
