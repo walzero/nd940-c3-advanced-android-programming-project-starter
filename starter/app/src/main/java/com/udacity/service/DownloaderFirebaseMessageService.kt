@@ -23,7 +23,7 @@ class DownloaderFirebaseMessageService : FirebaseMessagingService() {
 
     private fun sendNotification(messageBody: String) {
         with(applicationContext) {
-            notificationManager().sendNotification(messageBody, this)
+//            notificationManager().sendNotification(messageBody, this)
         }
     }
 
