@@ -27,6 +27,8 @@ class LoadingButton @JvmOverloads constructor(
     private var widthSize = 0
     private var heightSize = 0
 
+    var validateClick: () -> Boolean = { true }
+
     private val widthProperty by lazy {
         PropertyValuesHolder.ofFloat(PROGRESS, 0f, 1f)
     }
@@ -51,7 +53,8 @@ class LoadingButton @JvmOverloads constructor(
     }
 
     override fun performClick(): Boolean {
-        performAnimations()
+        if (validateClick())
+            performAnimations()
 
         return super.performClick()
     }
@@ -124,16 +127,26 @@ class LoadingButton @JvmOverloads constructor(
         //bounds summary:
         //width = width - margin - size, width - margin
         //height = half height - half size, half height + half size
-
-
         arcBounds = RectF(
             widthSize - 48.inPixels,
-            ((heightSize * getArcHeightFactor()) / 2) - 16.inPixels,
+            ((heightSize * getArcHeightFactor()) / 2) - getArcHalfSizeValue(),
             widthSize - 16.inPixels,
-            ((heightSize * getArcHeightFactor()) / 2) + 16.inPixels
+            ((heightSize * getArcHeightFactor()) / 2) + getArcHalfSizeValue()
         )
     }
 
+    /**
+     * If progress more then 30%:
+     *show arc, consider size in height
+     * If progress less then 30%:
+     *hide arc above the button, consider size in height
+     */
+    private fun getArcHalfSizeValue() =
+        if (progress > 0.3f) 16.inPixels else (-16).inPixels
+
+    /**
+     * if progress more then 30% show arc, else hide above button
+     */
     private fun getArcHeightFactor() = if (progress > 0.3f) progress else 0f
 
     private val Int.inPixels: Float
