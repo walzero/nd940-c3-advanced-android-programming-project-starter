@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val contentIntent by lazy {
-        Intent(applicationContext, MainActivity::class.java)
+        Intent(applicationContext, DetailActivity::class.java)
     }
 
     private var downloadID: Long = 0
