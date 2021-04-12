@@ -27,7 +27,32 @@ class LoadingButton @JvmOverloads constructor(
     private var widthSize = 0
     private var heightSize = 0
 
-    var validateClick: () -> Boolean = { true }
+    private var isActive: Boolean = false
+    set(value) {
+        isClickable = value
+        isFocusable = value
+        field = value
+        invalidate()
+    }
+
+    fun setButtonActiveState(active: Boolean) {
+        isActive = active
+    }
+
+    init {
+        val customAttrs = context.theme.obtainStyledAttributes(
+            attrs,
+            R.styleable.LoadingButton,
+            defStyleAttr,
+            0
+        )
+
+        try {
+            isActive = customAttrs.getBoolean(R.styleable.LoadingButton_active, true)
+        } finally {
+            customAttrs.recycle()
+        }
+    }
 
     private val widthProperty by lazy {
         PropertyValuesHolder.ofFloat(PROGRESS, 0f, 1f)
@@ -53,8 +78,7 @@ class LoadingButton @JvmOverloads constructor(
     }
 
     override fun performClick(): Boolean {
-        if (validateClick())
-            performAnimations()
+        performAnimations()
 
         return super.performClick()
     }
@@ -65,6 +89,34 @@ class LoadingButton @JvmOverloads constructor(
         val xPos: Float = (width / 2).toFloat()
         val yPos: Float = (height / 2 - (paint.descent() + paint.ascent()) / 2)
 
+        when (isActive) {
+            false -> drawInactiveButton(canvas, xPos, yPos)
+            true -> drawActiveButton(canvas, xPos, yPos)
+        }
+    }
+
+    private fun drawInactiveButton(
+        canvas: Canvas,
+        xPos: Float,
+        yPos: Float
+    ) {
+        canvas.drawColor(Color.LTGRAY)
+
+        //Draw the text
+        paint.color = Color.WHITE
+        canvas.drawText(
+            context.getString(R.string.button_name),
+            xPos,
+            yPos,
+            paint
+        )
+    }
+
+    private fun drawActiveButton(
+        canvas: Canvas,
+        xPos: Float,
+        yPos: Float
+    ) {
         //Draw the Background
         canvas.drawColor(Color.DKGRAY)
 

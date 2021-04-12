@@ -14,6 +14,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.udacity.databinding.ActivityMainBinding
 import com.udacity.extensions.showShortToast
 import timber.log.Timber
@@ -43,7 +45,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        viewModel = ViewModelProvider(this).get(DownloadSourceViewModel::class.java)
+
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        binding.lifecycleOwner = this
+        binding.contentMain.viewModel = viewModel
+
         setSupportActionBar(binding.toolbar)
 
         registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
@@ -55,6 +63,37 @@ class MainActivity : AppCompatActivity() {
 
         configureViews()
         setListeners()
+
+        setObservers()
+    }
+
+    private fun setObservers() {
+        viewModel.hasChosenDownloadOption.observe(this, {
+            binding.contentMain.customButton.setButtonActiveState(it ?: false)
+        })
+    }
+
+    private fun setListeners() {
+        binding.contentMain.run {
+            rgDownloadOptions.setOnCheckedChangeListener { _, checkedId ->
+                onCheckedItem(checkedId)
+            }
+
+            customButton.setOnClickListener {
+//                download()
+            }
+        }
+    }
+
+    private fun onCheckedItem(checkedId: Int) {
+        val option = when (checkedId) {
+            R.id.rb_option_glide -> DownloadOption.GLIDE
+            R.id.rb_option_udacity -> DownloadOption.UDACITY
+            R.id.rb_option_retrofit -> DownloadOption.RETROFIT
+            else -> DownloadOption.NONE
+        }
+
+        viewModel.setDownloadOption(option)
     }
 
     private val receiver = object : BroadcastReceiver() {
