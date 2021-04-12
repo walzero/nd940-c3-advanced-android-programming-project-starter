@@ -24,6 +24,7 @@ import timber.log.Timber
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var viewModel: DownloadSourceViewModel
 
     private val downloadNotifManager: DownloadNotificationManager by lazy {
         DownloadNotificationManager(notificationManager = notificationManager)
@@ -34,8 +35,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private var downloadID: Long = 0
-
-    private var downloadOption = DownloadOption.NONE
 
     private val notificationManager: NotificationManager by lazy {
         getSystemService(NotificationManager::class.java)
@@ -61,9 +60,7 @@ class MainActivity : AppCompatActivity() {
             getString(R.string.notification_channel_name)
         )
 
-        configureViews()
         setListeners()
-
         setObservers()
     }
 
@@ -79,9 +76,7 @@ class MainActivity : AppCompatActivity() {
                 onCheckedItem(checkedId)
             }
 
-            customButton.setOnClickListener {
-//                download()
-            }
+            customButton.setOnClickListener { download(viewModel?.downloadOption?.value) }
         }
     }
 
@@ -108,7 +103,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun notifyUser() {
-        showShortToast("Download do projeto ${downloadOption.title} finalizado")
+        showShortToast("Download do projeto ${viewModel.downloadOption.value?.title} finalizado")
         showNotification()
     }
 
@@ -119,7 +114,7 @@ class MainActivity : AppCompatActivity() {
             context = this,
             notificationId = downloadID.toInt(),
             pendingIntent,
-            getString(R.string.notification_description, downloadOption.title)
+            getString(R.string.notification_description, viewModel.downloadOption.value?.title)
         )
     }
 
@@ -130,48 +125,9 @@ class MainActivity : AppCompatActivity() {
         PendingIntent.FLAG_UPDATE_CURRENT
     )
 
-    private fun configureViews() {
-        with(binding) {
-            //animate view if has selected a value
-            contentMain.customButton.validateClick = {
-                hasDownloadOption()
-            }
-        }
-    }
-
-    private fun setListeners() {
-        setDownloadButtonClickListener()
-        setCheckedChangedListener()
-    }
-
-    private fun setDownloadButtonClickListener() {
-        binding.contentMain.customButton.setOnClickListener {
-            when (hasDownloadOption()) {
-                true -> {
-                    download(downloadOption)
-                    return@setOnClickListener
-                }
-                false -> showShortToast(getString(R.string.choose_an_option))
-            }
-        }
-    }
-
-    private fun setCheckedChangedListener() {
-        with(binding.contentMain) {
-            rgDownloadOptions.setOnCheckedChangeListener { _, checkedId ->
-                downloadOption = when (checkedId) {
-                    rbOptionGlide.id -> DownloadOption.GLIDE
-                    rbOptionUdacity.id -> DownloadOption.UDACITY
-                    rbOptionRetrofit.id -> DownloadOption.RETROFIT
-                    else -> DownloadOption.NONE
-                }
-            }
-        }
-    }
-
-    private fun download(downloadOption: DownloadOption) {
+    private fun download(downloadOption: DownloadOption?) {
         val request =
-            DownloadManager.Request(downloadOption.uri)
+            DownloadManager.Request(downloadOption?.uri)
                 .setTitle(getString(R.string.app_name))
                 .setDescription(getString(R.string.app_description))
                 .setRequiresCharging(false)
@@ -183,6 +139,4 @@ class MainActivity : AppCompatActivity() {
         downloadID =
             downloadManager.enqueue(request)// enqueue puts the download request in the queue.
     }
-
-    private fun hasDownloadOption() = downloadOption != DownloadOption.NONE
 }
