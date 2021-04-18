@@ -22,6 +22,7 @@ class DownloaderFirebaseMessageService : FirebaseMessagingService() {
     }
 
     private fun sendNotification(messageBody: String) {
+        Log.d("FCMTOKEN", "test")
         with(applicationContext) {
 //            notificationManager().sendNotification(messageBody, this)
         }
@@ -29,7 +30,7 @@ class DownloaderFirebaseMessageService : FirebaseMessagingService() {
 
     override fun onNewToken(newToken: String) {
         Log.d("FCMTOKEN", "Refreshed token: $newToken")
-        sendRegistrationToServer(newToken)
+//        sendRegistrationToServer(newToken)
     }
 
     private fun sendRegistrationToServer(newToken: String) {

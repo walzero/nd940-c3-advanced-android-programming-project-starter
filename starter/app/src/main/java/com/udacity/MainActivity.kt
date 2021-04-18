@@ -1,22 +1,19 @@
 package com.udacity
 
+import android.Manifest
 import android.app.DownloadManager
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.database.Cursor
+import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.NotificationCompat
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.udacity.databinding.ActivityMainBinding
+import com.udacity.extensions.createChannel
 import com.udacity.extensions.showShortToast
 import timber.log.Timber
 
@@ -30,17 +27,11 @@ class MainActivity : AppCompatActivity() {
         DownloadNotificationManager(notificationManager = notificationManager)
     }
 
-    private val contentIntent by lazy {
-        Intent(applicationContext, DetailActivity::class.java)
-    }
-
     private var downloadID: Long = 0
 
     private val notificationManager: NotificationManager by lazy {
         getSystemService(NotificationManager::class.java)
     }
-    private lateinit var pendingIntent: PendingIntent
-    private lateinit var action: NotificationCompat.Action
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,6 +53,7 @@ class MainActivity : AppCompatActivity() {
 
         setListeners()
         setObservers()
+        createChannel(this)
     }
 
     private fun setObservers() {
@@ -76,7 +68,7 @@ class MainActivity : AppCompatActivity() {
                 onCheckedItem(checkedId)
             }
 
-            customButton.setOnClickListener { download(viewModel?.downloadOption?.value) }
+            customButton.setOnClickListener { download(viewModel?.downloadOption) }
         }
     }
 
@@ -103,27 +95,35 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun notifyUser() {
-        showShortToast("Download do projeto ${viewModel.downloadOption.value?.title} finalizado")
+        showShortToast("Download do projeto ${viewModel.downloadOption.title} finalizado")
         showNotification()
     }
 
     private fun showNotification() {
-        pendingIntent = createPendingIntent()
-
         downloadNotifManager.sendNotification(
-            context = this,
-            notificationId = downloadID.toInt(),
-            pendingIntent,
-            getString(R.string.notification_description, viewModel.downloadOption.value?.title)
+            this,
+            viewModel.downloadOption
         )
     }
 
-    private fun createPendingIntent() = PendingIntent.getActivity(
-        applicationContext,
-        downloadID.toInt(),
-        contentIntent,
-        PendingIntent.FLAG_UPDATE_CURRENT
-    )
+    private fun startDownload() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//            download()
+        }else{
+            val result = requestRuntimePermission(
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+//            result.success {
+//                download()
+//            }
+        }
+
+    }
+
+    private fun requestRuntimePermission(mainActivity: MainActivity, writeExternalStorage: String) {
+
+    }
 
     private fun download(downloadOption: DownloadOption?) {
         val request =

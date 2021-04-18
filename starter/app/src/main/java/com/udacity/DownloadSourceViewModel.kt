@@ -8,8 +8,8 @@ import androidx.lifecycle.ViewModel
 class DownloadSourceViewModel : ViewModel() {
 
     private val _downloadOption = MutableLiveData(DownloadOption.NONE)
-    val downloadOption: LiveData<DownloadOption>
-        get() = _downloadOption
+    val downloadOption: DownloadOption
+        get() = _downloadOption.value ?: DownloadOption.NONE
 
     val hasChosenDownloadOption: LiveData<Boolean> = Transformations.map(_downloadOption) {
         it?.takeUnless { it == DownloadOption.NONE }?.let { true } ?: false
@@ -18,4 +18,5 @@ class DownloadSourceViewModel : ViewModel() {
     fun setDownloadOption(downloadOption: DownloadOption) {
         _downloadOption.postValue(downloadOption)
     }
+
 }
