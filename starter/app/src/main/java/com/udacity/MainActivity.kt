@@ -7,11 +7,18 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.Build
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Environment
+import android.view.Gravity
+import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.snackbar.Snackbar
 import com.udacity.databinding.ActivityMainBinding
 import com.udacity.extensions.createChannel
 import com.udacity.extensions.showShortToast
@@ -22,6 +29,18 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: DownloadSourceViewModel
+
+    private val storagePermission = Manifest.permission.WRITE_EXTERNAL_STORAGE
+
+    private var requestPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { result ->
+            if (result) {
+                startDownload(viewModel.downloadOption)
+                return@registerForActivityResult
+            }
+
+            showPermissionRequiredSnackBar()
+        }
 
     private val downloadNotifManager: DownloadNotificationManager by lazy {
         DownloadNotificationManager(notificationManager = notificationManager)
@@ -56,6 +75,14 @@ class MainActivity : AppCompatActivity() {
         createChannel(this)
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+
+        if (!hasWritePermission()) {
+            requestPermission.launch(storagePermission)
+        }
+    }
+
     private fun setObservers() {
         viewModel.hasChosenDownloadOption.observe(this, {
             binding.contentMain.customButton.setButtonActiveState(it ?: false)
@@ -68,7 +95,7 @@ class MainActivity : AppCompatActivity() {
                 onCheckedItem(checkedId)
             }
 
-            customButton.setOnClickListener { download(viewModel?.downloadOption) }
+            customButton.setOnClickListener { startDownload(viewModel?.downloadOption) }
         }
     }
 
@@ -106,30 +133,23 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private fun startDownload() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-//            download()
-        }else{
-            val result = requestRuntimePermission(
-                this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-//            result.success {
-//                download()
-//            }
+    private fun startDownload(downloadOption: DownloadOption?) {
+        if (!hasWritePermission()) {
+            requestPermission.launch(storagePermission)
+            return
         }
 
-    }
-
-    private fun requestRuntimePermission(mainActivity: MainActivity, writeExternalStorage: String) {
-
+        download(downloadOption)
     }
 
     private fun download(downloadOption: DownloadOption?) {
+        val fileName = "${downloadOption?.title}.zip"
+
         val request =
             DownloadManager.Request(downloadOption?.uri)
                 .setTitle(getString(R.string.app_name))
                 .setDescription(getString(R.string.app_description))
+                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
                 .setRequiresCharging(false)
                 .setAllowedOverMetered(true)
                 .setAllowedOverRoaming(true)
@@ -138,5 +158,26 @@ class MainActivity : AppCompatActivity() {
 
         downloadID =
             downloadManager.enqueue(request)// enqueue puts the download request in the queue.
+    }
+
+    private fun hasWritePermission() =
+        ContextCompat.checkSelfPermission(
+            this,
+            storagePermission
+        ) == PackageManager.PERMISSION_GRANTED
+
+    private fun showPermissionRequiredSnackBar() {
+        val snackbar = Snackbar.make(
+            binding.root,
+            R.string.permission_denied_explanation,
+            Snackbar.LENGTH_SHORT
+        )
+
+        val view: View = snackbar.view
+        val params = view.layoutParams as CoordinatorLayout.LayoutParams
+        params.gravity = Gravity.TOP
+        view.layoutParams = params
+
+        snackbar.show()
     }
 }
