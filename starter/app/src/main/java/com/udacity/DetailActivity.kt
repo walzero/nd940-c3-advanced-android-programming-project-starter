@@ -26,6 +26,7 @@ class DetailActivity : AppCompatActivity() {
         if (intent.extras?.containsKey(DOWNLOAD_TYPE) == true) {
             notificationManager().cancelNotifications()
             title = type?.title
+            binding.contentDetail.tvDownloadOption.text = getString(type?.description ?: -1)
         }
 
         binding.contentDetail.btReturnHomeScreen.setOnClickListener { goToMainScreen() }

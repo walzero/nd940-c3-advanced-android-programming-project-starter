@@ -20,6 +20,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import com.udacity.databinding.ActivityMainBinding
+import com.udacity.extensions.DOWNLOAD_TYPE
 import com.udacity.extensions.createChannel
 import com.udacity.extensions.showShortToast
 import timber.log.Timber
@@ -149,7 +150,7 @@ class MainActivity : AppCompatActivity() {
             DownloadManager.Request(downloadOption?.uri)
                 .setTitle(getString(R.string.app_name))
                 .setDescription(getString(R.string.app_description))
-                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
+//                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
                 .setRequiresCharging(false)
                 .setAllowedOverMetered(true)
                 .setAllowedOverRoaming(true)

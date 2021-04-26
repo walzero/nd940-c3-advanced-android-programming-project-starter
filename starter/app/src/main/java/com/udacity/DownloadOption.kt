@@ -1,12 +1,13 @@
 package com.udacity
 
 import android.net.Uri
+import androidx.annotation.StringRes
 
-enum class DownloadOption(val title: String, val uri: Uri) {
-    GLIDE("Glide", Uri.parse(GLIDE_URL)),
-    UDACITY("LoadApp", Uri.parse(UDACITY_URL)),
-    RETROFIT("Retrofit", Uri.parse(RETROFIT_URL)),
-    NONE("", Uri.EMPTY)
+enum class DownloadOption(val title: String, @StringRes val description: Int, val uri: Uri) {
+    GLIDE("Glide", R.string.download_option_glide, Uri.parse(GLIDE_URL)),
+    UDACITY("LoadApp", R.string.download_option_udacity, Uri.parse(UDACITY_URL)),
+    RETROFIT("Retrofit", R.string.download_option_retrofit, Uri.parse(RETROFIT_URL)),
+    NONE("", -1, Uri.EMPTY)
 }
 
 private const val GLIDE_URL = "https://github.com/bumptech/glide/archive/refs/heads/master.zip"
