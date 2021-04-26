@@ -9,7 +9,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.Environment
 import android.view.Gravity
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,7 +19,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import com.udacity.databinding.ActivityMainBinding
-import com.udacity.extensions.DOWNLOAD_TYPE
+import com.udacity.databinding.ContentMainBinding
 import com.udacity.extensions.createChannel
 import com.udacity.extensions.showShortToast
 import timber.log.Timber
@@ -96,7 +95,14 @@ class MainActivity : AppCompatActivity() {
                 onCheckedItem(checkedId)
             }
 
-            customButton.setOnClickListener { startDownload(viewModel?.downloadOption) }
+            customButton.setOnClickListener { handleButtonClick() }
+        }
+    }
+
+    private fun ContentMainBinding.handleButtonClick() {
+        when (viewModel?.hasChosenDownloadOption?.value ?: false) {
+            true -> startDownload(viewModel?.downloadOption)
+            false -> showShortToast("Please select a content do download!")
         }
     }
 

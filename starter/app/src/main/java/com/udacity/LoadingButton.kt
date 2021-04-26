@@ -8,12 +8,14 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 import android.view.animation.DecelerateInterpolator
+import androidx.annotation.ColorRes
 import androidx.core.animation.doOnEnd
 import java.util.concurrent.TimeUnit
-import kotlin.properties.Delegates
 
 class LoadingButton @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
     companion object {
@@ -22,18 +24,23 @@ class LoadingButton @JvmOverloads constructor(
 
     private lateinit var currentRect: Rect
     private lateinit var arcBounds: RectF
-
     private var progress: Float = 1f
     private var widthSize = 0
     private var heightSize = 0
 
+    @ColorRes
+    private var backgroundColorStateList: Int = 0
+
+    @ColorRes
+    private var textColorStateList: Int = 0
+
     private var isActive: Boolean = false
-    set(value) {
-        isClickable = value
-        isFocusable = value
-        field = value
-        invalidate()
-    }
+        set(value) {
+//            isClickable = value
+//            isFocusable = value
+            field = value
+            invalidate()
+        }
 
     fun setButtonActiveState(active: Boolean) {
         isActive = active
@@ -49,6 +56,16 @@ class LoadingButton @JvmOverloads constructor(
 
         try {
             isActive = customAttrs.getBoolean(R.styleable.LoadingButton_active, true)
+
+            val backgroundColor = R.styleable.LoadingButton_btnBackgroundColor
+            if (customAttrs.hasValue(backgroundColor)) {
+                backgroundColorStateList = customAttrs.getResourceId(backgroundColor, 0)
+            }
+
+            val textColor = R.styleable.LoadingButton_btnTextColor
+            if (customAttrs.hasValue(textColor)) {
+                textColorStateList = customAttrs.getResourceId(textColor, 0)
+            }
         } finally {
             customAttrs.recycle()
         }
@@ -69,16 +86,13 @@ class LoadingButton @JvmOverloads constructor(
         typeface = Typeface.create("", Typeface.BOLD)
     }
 
-    private var buttonState: ButtonState by Delegates.observable(ButtonState.Completed) { p, old, new ->
-
-    }
-
     init {
         isClickable = true
     }
 
     override fun performClick(): Boolean {
-        performAnimations()
+        if (isActive)
+            performAnimations()
 
         return super.performClick()
     }
@@ -121,11 +135,11 @@ class LoadingButton @JvmOverloads constructor(
         canvas.drawColor(Color.DKGRAY)
 
         //Draw the progress
-        paint.color = context.getColor(R.color.colorPrimary)
+        paint.color = context.getColor(backgroundColorStateList)
         canvas.drawRect(currentRect, paint)
 
         //Draw the text
-        paint.color = Color.WHITE
+        paint.color = context.getColor(textColorStateList)
         canvas.drawText(
             context.getString(R.string.button_name),
             xPos,

@@ -59,6 +59,8 @@
             android:layout_width="0dp"
             android:layout_height="60dp"
             app:active="false"
+            app:btnBackgroundColor="@color/colorPrimary"
+            app:btnTextColor="@color/white"
             app:flow_verticalBias="1.0"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
